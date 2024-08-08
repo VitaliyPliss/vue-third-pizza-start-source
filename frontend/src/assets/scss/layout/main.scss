@@ -1,20 +1,11 @@
-<template>
-  <app-layout>
-    <home-view />
-  </app-layout>
-</template>
-
-<script setup>
-import AppLayout from "@/layouts/AppLayout.vue";
-import HomeView from "@/views/HomeView.vue";
-</script>
-
-<style lang="scss">
-@import "@/assets/scss/app.scss";
-body {
-  justify-content: center;
+.main {
+  display: flex;
   align-items: center;
+  justify-content: center;
+
+  height: 100vh;
 }
+
 .main__wrapper {
   padding-bottom: 30px;
 
@@ -56,4 +47,3 @@ body {
     margin: 0 auto;
   }
 }
-</style>

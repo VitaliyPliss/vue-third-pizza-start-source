@@ -4,119 +4,19 @@
       <div class="content__wrapper">
         <h1 class="title title--big">Конструктор пиццы</h1>
 
-        <div class="content__dough">
-          <div class="sheet">
-            <h2 class="title title--small sheet__title">Выберите тесто</h2>
+        <dough-selector :dough="dough" v-model:choosedDough="choosedDough" />
 
-            <div class="sheet__content dough">
-              <label
-                v-for="(item, index) in dough"
-                :key="item.id"
-                :class="['dough__input', `dough__input--${item.title}`]"
-              >
-                <input
-                  type="radio"
-                  name="dought"
-                  :value="item.title"
-                  class="visually-hidden"
-                  :checked="index === 0"
-                />
-                <b>{{ item.name }}</b>
-                <span>{{ item.description }}</span>
-              </label>
-            </div>
-          </div>
-        </div>
+        <size-selector :sizes="sizes" v-model:choosedSize="choosedSize" />
 
-        <div class="content__diameter">
-          <div class="sheet">
-            <h2 class="title title--small sheet__title">Выберите размер</h2>
-
-            <div class="sheet__content diameter">
-              <label
-                v-for="(size, index) in sizes"
-                :key="size.id"
-                :class="['diameter__input', `diameter__input--${size.title}`]"
-              >
-                <input
-                  type="radio"
-                  name="diameter"
-                  :value="size.title"
-                  class="visually-hidden"
-                  :checked="index === 0"
-                />
-                <span>{{ size.name }}</span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div class="content__ingredients">
-          <div class="sheet">
-            <h2 class="title title--small sheet__title">
-              Выберите ингредиенты
-            </h2>
-
-            <div class="sheet__content ingredients">
-              <div class="ingredients__sauce">
-                <p>Основной соус:</p>
-
-                <label
-                  v-for="(sauce, index) in sauces"
-                  :key="sauce.id"
-                  class="radio ingredients__input"
-                >
-                  <input
-                    type="radio"
-                    name="sauce"
-                    :value="sauce.title"
-                    :checked="index === 0"
-                  />
-                  <span>{{ sauce.name }}</span>
-                </label>
-              </div>
-
-              <div class="ingredients__filling">
-                <p>Начинка:</p>
-
-                <ul class="ingredients__list">
-                  <li
-                    v-for="ingredient in ingredients"
-                    :key="ingredient.key"
-                    class="ingredients__item"
-                  >
-                    <span
-                      :class="['filling', `filling--${ingredient.title}`]"
-                      >{{ ingredient.name }}</span
-                    >
-
-                    <div class="counter counter--orange ingredients__counter">
-                      <button
-                        type="button"
-                        class="counter__button counter__button--minus"
-                        disabled
-                      >
-                        <span class="visually-hidden">Меньше</span>
-                      </button>
-                      <input
-                        type="text"
-                        name="counter"
-                        class="counter__input"
-                        value="0"
-                      />
-                      <button
-                        type="button"
-                        class="counter__button counter__button--plus"
-                      >
-                        <span class="visually-hidden">Больше</span>
-                      </button>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ingredients-selector
+          :ingredients="ingredients"
+          :sauces="sauces"
+          @add-ingredient="addIngredient"
+          :choosed-ingredients="choosedIngredients"
+          v-model:choosedSauce="choosedSauce"
+        >
+          <sauces-selector :sauces="sauces" v-model:choosedSauce="choosedSauce"
+        /></ingredients-selector>
 
         <div class="content__pizza">
           <label class="input">
@@ -149,15 +49,22 @@
 </template>
 
 <script setup>
+import doughSelector from "@/modules/constructor/doughSelector.vue";
+import ingredientsSelector from "@/modules/constructor/ingredientsSelector.vue";
+import saucesSelector from "@/modules/constructor/saucesSelector.vue";
+import sizeSelector from "@/modules/constructor/sizeSelector.vue";
+
 import doughJSON from "@/mocks/dough.json";
 import ingredientsJSON from "@/mocks/ingredients.json";
 import saucesJSON from "@/mocks/sauces.json";
 import sizesJSON from "@/mocks/sizes.json";
 
-import sizesConstants from "@/common/data/sizes.js";
 import doughConstants from "@/common/data/doughSizes.js";
-import saucesConstants from "@/common/data/sauces.js";
 import ingredientsConstants from "@/common/data/ingredients.js";
+import saucesConstants from "@/common/data/sauces.js";
+import sizesConstants from "@/common/data/sizes.js";
+
+import { ref, reactive } from "vue";
 
 const normalizePizzaData = (JSON, constants) => {
   return JSON.map((item) => {
@@ -168,10 +75,41 @@ const normalizePizzaData = (JSON, constants) => {
   });
 };
 
-const sizes = normalizePizzaData(sizesJSON, sizesConstants);
 const dough = normalizePizzaData(doughJSON, doughConstants);
-const sauces = normalizePizzaData(saucesJSON, saucesConstants);
 const ingredients = normalizePizzaData(ingredientsJSON, ingredientsConstants);
+const sauces = normalizePizzaData(saucesJSON, saucesConstants);
+const sizes = normalizePizzaData(sizesJSON, sizesConstants);
+
+const pizzaData = reactive({
+  dough: dough[0],
+  ingredients: [],
+  sauce: sauces[0],
+  size: sizes[0],
+});
+
+const choosedDough = reactive(dough[0]);
+const choosedIngredients = reactive([]);
+const choosedSauce = reactive(sauces[0]);
+const choosedSize = reactive(sizes[0]);
+
+const addIngredient = (title, counter) => {
+  const ingredientExists = choosedIngredients.some(
+    (ingredient) => ingredient.title === title
+  );
+
+  if (ingredientExists) {
+    const existingIngredientIndex = choosedIngredients.findIndex(
+      (ingredient) => ingredient.title === title
+    );
+    choosedIngredients[existingIngredientIndex].counter = counter;
+    return;
+  }
+
+  choosedIngredients.push({
+    title,
+    counter,
+  });
+};
 </script>
 
 <style lang="scss" scoped>

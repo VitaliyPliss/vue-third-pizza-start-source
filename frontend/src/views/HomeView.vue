@@ -29,11 +29,9 @@
           </label>
 
           <div class="content__constructor">
-            <div class="pizza pizza--foundation--big-tomato">
+            <div :class="['pizza', `pizza--foundation--${choosedSize.title}-${choosedSauce.title}`]">
               <div class="pizza__wrapper">
-                <div class="pizza__filling pizza__filling--ananas"></div>
-                <div class="pizza__filling pizza__filling--bacon"></div>
-                <div class="pizza__filling pizza__filling--cheddar"></div>
+                <div v-for="(ingredient, index) in choosedIngredients" :key="index" :class="['pizza__filling', `pizza__filling--${ingredient.title}`]"></div>
               </div>
             </div>
           </div>
@@ -79,13 +77,6 @@ const dough = normalizePizzaData(doughJSON, doughConstants);
 const ingredients = normalizePizzaData(ingredientsJSON, ingredientsConstants);
 const sauces = normalizePizzaData(saucesJSON, saucesConstants);
 const sizes = normalizePizzaData(sizesJSON, sizesConstants);
-
-const pizzaData = reactive({
-  dough: dough[0],
-  ingredients: [],
-  sauce: sauces[0],
-  size: sizes[0],
-});
 
 const choosedDough = reactive(dough[0]);
 const choosedIngredients = reactive([]);

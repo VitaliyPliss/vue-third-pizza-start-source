@@ -15,10 +15,19 @@
               :key="ingredient.key"
               class="ingredients__item"
             >
-              <span :class="['filling', `filling--${ingredient.title}`]">{{
-                ingredient.name
-              }}</span>
-
+              <app-drag
+                :transfer-data="{
+                  ...ingredient,
+                  counter:
+                    // если кол-во не больше MAX_COUNTER_VALUE, то увеличиваем на 1
+                    getValue(ingredient.title) +
+                    +!(getValue(ingredient.title) === MAX_COUNTER_VALUE),
+                }"
+              >
+                <span :class="['filling', `filling--${ingredient.title}`]">{{
+                  ingredient.name
+                }}</span>
+              </app-drag>
               <div class="counter counter--orange ingredients__counter">
                 <button
                   type="button"
@@ -52,6 +61,7 @@
 </template>
 
 <script setup>
+import AppDrag from "@/common/components/AppDrag.vue";
 import { MIN_COUNTER_VALUE, MAX_COUNTER_VALUE } from "@/common/constants";
 
 const props = defineProps({
@@ -85,9 +95,9 @@ const onCounterClick = (title, counter) => {
   const currentIngredientValue = getValue(title);
 
   if (counter === "plus") {
-    emit("addIngredient", title, currentIngredientValue + 1);
+    emit("addIngredient", { title, counter: currentIngredientValue + 1 });
   } else if (counter === "minus") {
-    emit("addIngredient", title, currentIngredientValue - 1);
+    emit("addIngredient", { title, counter: currentIngredientValue - 1 });
   }
 };
 </script>

@@ -12,7 +12,7 @@
         name="sauce"
         :value="choosedSauce"
         :checked="index === 0"
-        @input="emit('update:choosedSauce', sauce)"
+        @input="emit('choosedSauce', sauce)"
       />
       <span>{{ sauce.name }}</span>
     </label>
@@ -31,7 +31,7 @@ defineProps({
     default: () => [],
   },
 });
-const emit = defineEmits(["update:choosedSauce"]);
+const emit = defineEmits(["choosedSauce"]);
 </script>
 
 <style lang="scss" scoped></style>

@@ -15,7 +15,7 @@
             :value="choosedDough"
             class="visually-hidden"
             :checked="index === 0"
-            @input="emit('update:choosedDough', item)"
+            @input="emit('choosedDough', { ...item })"
           />
           <b>{{ item.name }}</b>
           <span>{{ item.description }}</span>
@@ -37,7 +37,7 @@ defineProps({
     default: () => [],
   },
 });
-const emit = defineEmits(["update:choosedDough"]);
+const emit = defineEmits(["choosedDough"]);
 </script>
 
 <style lang="scss" scoped></style>

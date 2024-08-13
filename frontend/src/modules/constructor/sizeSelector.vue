@@ -15,7 +15,7 @@
             :value="choosedSize"
             class="visually-hidden"
             :checked="index === 0"
-            @input="emit('update:choosedSize', size)"
+            @input="emit('choosedSize', size)"
           />
           <span>{{ size.name }}</span>
         </label>
@@ -36,7 +36,7 @@ defineProps({
     default: () => [],
   },
 });
-const emit = defineEmits(["update:choosedSize"]);
+const emit = defineEmits(["choosedSize"]);
 </script>
 
 <style lang="scss" scoped></style>

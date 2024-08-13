@@ -4,9 +4,17 @@
       <div class="content__wrapper">
         <h1 class="title title--big">Конструктор пиццы</h1>
 
-        <dough-selector :dough="dough" v-model:choosedDough="choosedDough" />
+        <dough-selector
+          :dough="dough"
+          @choosed-dough="updateChoosedDough"
+          :choosedDough="pizzaData.dough"
+        />
 
-        <size-selector :sizes="sizes" v-model:choosedSize="choosedSize" />
+        <size-selector
+          :sizes="sizes"
+          @choosed-size="updateChoosedSize"
+          :choosedSize="pizzaData.size"
+        />
 
         <ingredients-selector
           :ingredients="ingredients"
@@ -15,7 +23,10 @@
           :choosed-ingredients="choosedIngredients"
           v-model:choosedSauce="choosedSauce"
         >
-          <sauces-selector :sauces="sauces" v-model:choosedSauce="choosedSauce"
+          <sauces-selector
+            :sauces="sauces"
+            @choosed-sauce="updateChoosedSauce"
+            :choosedSauce="choosedSauce"
         /></ingredients-selector>
 
         <div class="content__pizza">
@@ -29,11 +40,27 @@
           </label>
 
           <div class="content__constructor">
-            <div :class="['pizza', `pizza--foundation--${choosedSize.title}-${choosedSauce.title}`]">
-              <div class="pizza__wrapper">
-                <div v-for="(ingredient, index) in choosedIngredients" :key="index" :class="['pizza__filling', `pizza__filling--${ingredient.title}`]"></div>
+            <app-drop @drop="addIngredient($event)">
+              <div
+                :class="[
+                  'pizza',
+                  `pizza--foundation--${choosedSize.title}--${pizzaData.dough.title}`,
+                ]"
+              >
+                <div class="pizza__wrapper">
+                  <div
+                    v-for="(ingredient, index) in choosedIngredients"
+                    :key="index"
+                    :class="[
+                      'pizza__filling',
+                      `pizza__filling--${ingredient.title}`,
+                      ingredient.counter === 2 && 'pizza__filling--second',
+                      ingredient.counter === 3 && 'pizza__filling--third',
+                    ]"
+                  ></div>
+                </div>
               </div>
-            </div>
+            </app-drop>
           </div>
 
           <div class="content__result">
@@ -47,6 +74,8 @@
 </template>
 
 <script setup>
+import AppDrop from "@/common/components/AppDrop.vue";
+
 import doughSelector from "@/modules/constructor/doughSelector.vue";
 import ingredientsSelector from "@/modules/constructor/ingredientsSelector.vue";
 import saucesSelector from "@/modules/constructor/saucesSelector.vue";
@@ -62,7 +91,9 @@ import ingredientsConstants from "@/common/data/ingredients.js";
 import saucesConstants from "@/common/data/sauces.js";
 import sizesConstants from "@/common/data/sizes.js";
 
-import { ref, reactive } from "vue";
+import { ref, reactive, computed } from "vue";
+
+const emit = defineEmits(["drop"]);
 
 const normalizePizzaData = (JSON, constants) => {
   return JSON.map((item) => {
@@ -78,12 +109,31 @@ const ingredients = normalizePizzaData(ingredientsJSON, ingredientsConstants);
 const sauces = normalizePizzaData(saucesJSON, saucesConstants);
 const sizes = normalizePizzaData(sizesJSON, sizesConstants);
 
-const choosedDough = reactive(dough[0]);
+let choosedDough = reactive(dough[0]);
 const choosedIngredients = reactive([]);
-const choosedSauce = reactive(sauces[0]);
-const choosedSize = reactive(sizes[0]);
+let choosedSauce = reactive(sauces[0]);
+let choosedSize = reactive(sizes[0]);
 
-const addIngredient = (title, counter) => {
+const pizzaData = reactive({
+  dough: dough[0],
+  ingredients: [],
+  sauces: sauces[0],
+  sizes: sizes[0],
+});
+
+const updateChoosedDough = (newDough) => {
+  pizzaData.dough = newDough;
+};
+
+const updateChoosedSauce = (newSauce) => {
+  pizzaData.sauce = newSauce;
+};
+
+const updateChoosedSize = (newSize) => {
+  pizzaData.size = newSize;
+};
+
+const addIngredient = ({ title, counter }) => {
   const ingredientExists = choosedIngredients.some(
     (ingredient) => ingredient.title === title
   );

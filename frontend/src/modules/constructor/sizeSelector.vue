@@ -29,6 +29,7 @@ defineProps({
   choosedSize: {
     type: Object,
     required: true,
+    default: null,
   },
   sizes: {
     type: Array,

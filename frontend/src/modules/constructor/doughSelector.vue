@@ -30,6 +30,7 @@ defineProps({
   choosedDough: {
     type: Object,
     required: true,
+    default: null,
   },
   dough: {
     type: Array,

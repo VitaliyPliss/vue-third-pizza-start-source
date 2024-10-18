@@ -42,6 +42,7 @@
                   name="counter"
                   class="counter__input"
                   :value="getValue(ingredient.title) ?? 0"
+                  disabled
                 />
                 <button
                   type="button"
@@ -77,6 +78,7 @@ const props = defineProps({
   },
   choosedIngredients: {
     type: Array,
+    required: true,
     default: () => [],
   },
 });

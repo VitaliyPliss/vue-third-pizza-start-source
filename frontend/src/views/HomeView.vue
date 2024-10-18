@@ -20,13 +20,12 @@
           :ingredients="ingredients"
           :sauces="sauces"
           @add-ingredient="addIngredient"
-          :choosed-ingredients="choosedIngredients"
-          v-model:choosedSauce="choosedSauce"
+          :choosed-ingredients="pizzaData.ingredients"
         >
           <sauces-selector
             :sauces="sauces"
             @choosed-sauce="updateChoosedSauce"
-            :choosedSauce="choosedSauce"
+            :choosedSauce="pizzaData.sauce"
         /></ingredients-selector>
 
         <div class="content__pizza">
@@ -39,29 +38,10 @@
             />
           </label>
 
-          <div class="content__constructor">
-            <app-drop @drop="addIngredient($event)">
-              <div
-                :class="[
-                  'pizza',
-                  `pizza--foundation--${choosedSize.title}--${pizzaData.dough.title}`,
-                ]"
-              >
-                <div class="pizza__wrapper">
-                  <div
-                    v-for="(ingredient, index) in choosedIngredients"
-                    :key="index"
-                    :class="[
-                      'pizza__filling',
-                      `pizza__filling--${ingredient.title}`,
-                      ingredient.counter === 2 && 'pizza__filling--second',
-                      ingredient.counter === 3 && 'pizza__filling--third',
-                    ]"
-                  ></div>
-                </div>
-              </div>
-            </app-drop>
-          </div>
+          <pizzaConstructor
+            :pizzaData="pizzaData"
+            @drop="addIngredient($event)"
+          />
 
           <div class="content__result">
             <p>Итого: 0 ₽</p>
@@ -74,24 +54,23 @@
 </template>
 
 <script setup>
-import AppDrop from "@/common/components/AppDrop.vue";
-
 import doughSelector from "@/modules/constructor/doughSelector.vue";
-import ingredientsSelector from "@/modules/constructor/ingredientsSelector.vue";
 import saucesSelector from "@/modules/constructor/saucesSelector.vue";
 import sizeSelector from "@/modules/constructor/sizeSelector.vue";
+import ingredientsSelector from "@/modules/constructor/ingredientsSelector.vue";
+import pizzaConstructor from "@/modules/constructor/pizzaConstructor.vue";
 
 import doughJSON from "@/mocks/dough.json";
-import ingredientsJSON from "@/mocks/ingredients.json";
 import saucesJSON from "@/mocks/sauces.json";
 import sizesJSON from "@/mocks/sizes.json";
+import ingredientsJSON from "@/mocks/ingredients.json";
 
 import doughConstants from "@/common/data/doughSizes.js";
-import ingredientsConstants from "@/common/data/ingredients.js";
 import saucesConstants from "@/common/data/sauces.js";
 import sizesConstants from "@/common/data/sizes.js";
+import ingredientsConstants from "@/common/data/ingredients.js";
 
-import { ref, reactive, computed } from "vue";
+import { reactive } from "vue";
 
 const emit = defineEmits(["drop"]);
 
@@ -105,20 +84,15 @@ const normalizePizzaData = (JSON, constants) => {
 };
 
 const dough = normalizePizzaData(doughJSON, doughConstants);
-const ingredients = normalizePizzaData(ingredientsJSON, ingredientsConstants);
 const sauces = normalizePizzaData(saucesJSON, saucesConstants);
 const sizes = normalizePizzaData(sizesJSON, sizesConstants);
-
-let choosedDough = reactive(dough[0]);
-const choosedIngredients = reactive([]);
-let choosedSauce = reactive(sauces[0]);
-let choosedSize = reactive(sizes[0]);
+const ingredients = normalizePizzaData(ingredientsJSON, ingredientsConstants);
 
 const pizzaData = reactive({
   dough: dough[0],
+  sauce: sauces[0],
+  size: sizes[0],
   ingredients: [],
-  sauces: sauces[0],
-  sizes: sizes[0],
 });
 
 const updateChoosedDough = (newDough) => {
@@ -134,19 +108,19 @@ const updateChoosedSize = (newSize) => {
 };
 
 const addIngredient = ({ title, counter }) => {
-  const ingredientExists = choosedIngredients.some(
+  const ingredientExists = pizzaData.ingredients.some(
     (ingredient) => ingredient.title === title
   );
 
   if (ingredientExists) {
-    const existingIngredientIndex = choosedIngredients.findIndex(
+    const existingIngredientIndex = pizzaData.ingredients.findIndex(
       (ingredient) => ingredient.title === title
     );
-    choosedIngredients[existingIngredientIndex].counter = counter;
+    pizzaData.ingredients[existingIngredientIndex].counter = counter;
     return;
   }
 
-  choosedIngredients.push({
+  pizzaData.ingredients.push({
     title,
     counter,
   });

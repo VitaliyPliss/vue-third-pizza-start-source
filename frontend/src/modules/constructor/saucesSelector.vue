@@ -24,6 +24,7 @@ defineProps({
   choosedSauce: {
     type: Object,
     required: true,
+    default: null,
   },
   sauces: {
     type: Array,

@@ -41,4 +41,3 @@ defineProps({
 const emit = defineEmits(["choosedDough"]);
 </script>
 
-<style lang="scss" scoped></style>

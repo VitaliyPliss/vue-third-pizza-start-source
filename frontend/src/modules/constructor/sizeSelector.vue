@@ -39,5 +39,3 @@ defineProps({
 });
 const emit = defineEmits(["choosedSize"]);
 </script>
-
-<style lang="scss" scoped></style>

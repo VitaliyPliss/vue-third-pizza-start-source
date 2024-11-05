@@ -34,5 +34,3 @@ defineProps({
 });
 const emit = defineEmits(["choosedSauce"]);
 </script>
-
-<style lang="scss" scoped></style>

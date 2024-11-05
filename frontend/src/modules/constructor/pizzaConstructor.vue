@@ -38,5 +38,3 @@ const props = defineProps({
 
 const emit = defineEmits(["drop"]);
 </script>
-
-<style></style>

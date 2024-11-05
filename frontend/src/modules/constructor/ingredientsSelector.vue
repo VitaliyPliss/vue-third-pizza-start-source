@@ -103,6 +103,3 @@ const onCounterClick = (title, counter) => {
   }
 };
 </script>
-
-<style lang="scss" scoped></style>
-,

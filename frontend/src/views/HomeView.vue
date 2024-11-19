@@ -117,6 +117,11 @@ const addIngredient = ({ title, counter }) => {
       (ingredient) => ingredient.title === title
     );
     pizzaData.ingredients[existingIngredientIndex].counter = counter;
+
+    if (counter === 0) {
+      pizzaData.ingredients.splice(existingIngredientIndex, 1);
+    }
+
     return;
   }
 

@@ -13,7 +13,7 @@
             :key="index"
             :class="[
               'pizza__filling',
-              `pizza__filling--${ingredient.title}`,
+              ingredient.counter >= 1 && `pizza__filling--${ingredient.title}`,
               ingredient.counter === 2 && 'pizza__filling--second',
               ingredient.counter === 3 && 'pizza__filling--third',
             ]"

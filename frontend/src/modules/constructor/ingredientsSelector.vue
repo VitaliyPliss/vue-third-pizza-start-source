@@ -28,31 +28,14 @@
                   ingredient.name
                 }}</span>
               </app-drag>
-              <div class="counter counter--orange ingredients__counter">
-                <button
-                  type="button"
-                  class="counter__button counter__button--minus"
-                  @click="onCounterClick(ingredient.title, 'minus')"
-                  :disabled="getValue(ingredient.title) === MIN_COUNTER_VALUE"
-                >
-                  <span class="visually-hidden">Меньше</span>
-                </button>
-                <input
-                  type="text"
-                  name="counter"
-                  class="counter__input"
-                  :value="getValue(ingredient.title) ?? 0"
-                  disabled
-                />
-                <button
-                  type="button"
-                  class="counter__button counter__button--plus"
-                  @click="onCounterClick(ingredient.title, 'plus')"
-                  :disabled="getValue(ingredient.title) === MAX_COUNTER_VALUE"
-                >
-                  <span class="visually-hidden">Больше</span>
-                </button>
-              </div>
+              <app-counter
+                class="ingredients__counter"
+                :data="ingredient"
+                :value="getValue(ingredient.title)"
+                :min="MIN_COUNTER_VALUE"
+                :max="MAX_COUNTER_VALUE"
+                @updated="onCounterUpdate"
+              />
             </li>
           </ul>
         </div>
@@ -63,7 +46,7 @@
 
 <script setup>
 import AppDrag from "@/common/components/AppDrag.vue";
-import { MIN_COUNTER_VALUE, MAX_COUNTER_VALUE } from "@/common/constants";
+import AppCounter from "@/common/components/AppCounter.vue";
 
 const props = defineProps({
   sauces: {
@@ -93,13 +76,7 @@ const getValue = (title) => {
   return ingredient?.counter ?? 0;
 };
 
-const onCounterClick = (title, counter) => {
-  const currentIngredientValue = getValue(title);
-
-  if (counter === "plus") {
-    emit("addIngredient", { title, counter: currentIngredientValue + 1 });
-  } else if (counter === "minus") {
-    emit("addIngredient", { title, counter: currentIngredientValue - 1 });
-  }
+const onCounterUpdate = ({ title }, counter) => {
+  emit("addIngredient", { title, counter });
 };
 </script>

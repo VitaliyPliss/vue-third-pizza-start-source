@@ -253,11 +253,13 @@
             !cartStore.isValidPhone() ||
             cartStore.getPizzas.length === 0
           "
+          @click="sendForm"
         >
           Оформить заказ
         </button>
       </div>
     </section>
+    <success-order-modal v-model="showSuccessModal" @close="sendForm" />
   </form>
 </template>
 
@@ -268,6 +270,9 @@ import { useProfileStore } from "@/stores/profile";
 import { usePizzaStore } from "@/stores/pizza";
 import { MAX_PIZZA_VALUE } from "@/common/constants";
 import AppCounter from "@/common/components/AppCounter.vue";
+import SuccessOrderModal from "@/common/components/SuccessOrderModal.vue";
+
+const showSuccessModal = ref(false);
 
 const cartStore = useCartStore();
 const profileStore = useProfileStore();
@@ -312,6 +317,16 @@ const getIngredientNames = (ingredients) => {
       return ingredient ? ingredient.name : ing.title;
     })
     .join(", ");
+};
+
+const sendForm = (e) => {
+  e.preventDefault();
+  showSuccessModal.value = !showSuccessModal.value;
+
+  if (showSuccessModal.value) {
+    cartStore.clearCart();
+    cartStore.clearMisc();
+  }
 };
 
 onMounted(() => {

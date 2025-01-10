@@ -166,6 +166,17 @@ export const useCartStore = defineStore('cart', {
                     savedAddressId: null
                 }
             };
+        },
+
+        clearCart() {
+            this.pizzas = [];
+        },
+
+        clearMisc() {
+            this.misc = this.misc.map(item => ({
+                ...item,
+                quantity: 0
+            }));
         }
     }
 });

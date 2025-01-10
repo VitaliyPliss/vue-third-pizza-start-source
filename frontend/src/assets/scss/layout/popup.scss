@@ -1,3 +1,12 @@
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 40%);
+}
+
 .popup {
   @include pf_center-all;
 
@@ -30,14 +39,14 @@
     top: 15px;
     left: 15px;
 
-    background-image: url("../img/filling/ananas.svg");
+    background-image: url("@/assets/img/filling/ananas.svg");
   }
 
   &::after {
     right: 15px;
     bottom: 15px;
 
-    background-image: url("../img/filling/tomatoes.svg");
+    background-image: url("@/assets/img/filling/tomatoes.svg");
   }
 
   p {

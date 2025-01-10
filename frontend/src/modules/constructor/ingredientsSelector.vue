@@ -11,7 +11,7 @@
 
           <ul class="ingredients__list">
             <li
-              v-for="ingredient in ingredients"
+              v-for="ingredient in pizzaStore.getIngredients"
               :key="ingredient.key"
               class="ingredients__item"
             >
@@ -19,9 +19,11 @@
                 :transfer-data="{
                   ...ingredient,
                   counter:
-                    // если кол-во не больше MAX_COUNTER_VALUE, то увеличиваем на 1
-                    getValue(ingredient.title) +
-                    +!(getValue(ingredient.title) === MAX_COUNTER_VALUE),
+                    pizzaStore.getIngredientCount(ingredient.title) +
+                    +!(
+                      pizzaStore.getIngredientCount(ingredient.title) ===
+                      MAX_INGREDIENT_VALUE
+                    ),
                 }"
               >
                 <span :class="['filling', `filling--${ingredient.title}`]">{{
@@ -31,9 +33,9 @@
               <app-counter
                 class="ingredients__counter"
                 :data="ingredient"
-                :value="getValue(ingredient.title)"
-                :min="MIN_COUNTER_VALUE"
-                :max="MAX_COUNTER_VALUE"
+                :value="pizzaStore.getIngredientCount(ingredient.title)"
+                :min="MIN_INGREDIENT_VALUE"
+                :max="MAX_INGREDIENT_VALUE"
                 @updated="onCounterUpdate"
               />
             </li>
@@ -45,39 +47,14 @@
 </template>
 
 <script setup>
+import { usePizzaStore } from "@/stores/pizza";
 import AppDrag from "@/common/components/AppDrag.vue";
 import AppCounter from "@/common/components/AppCounter.vue";
-import { MIN_COUNTER_VALUE, MAX_COUNTER_VALUE } from "@/common/constants";
+import { MIN_INGREDIENT_VALUE, MAX_INGREDIENT_VALUE } from "@/common/constants";
 
-const props = defineProps({
-  sauces: {
-    type: Array,
-    required: true,
-    default: () => [],
-  },
-  ingredients: {
-    type: Array,
-    required: true,
-    default: () => [],
-  },
-  choosedIngredients: {
-    type: Array,
-    required: true,
-    default: () => [],
-  },
-});
-
-const { choosedIngredients } = props;
-const emit = defineEmits(["addIngredient"]);
-
-const getValue = (title) => {
-  const ingredient = choosedIngredients.find(
-    (ingredient) => ingredient.title === title
-  );
-  return ingredient?.counter ?? 0;
-};
+const pizzaStore = usePizzaStore();
 
 const onCounterUpdate = ({ title }, counter) => {
-  emit("addIngredient", { title, counter });
+  pizzaStore.addIngredient({ title, counter });
 };
 </script>

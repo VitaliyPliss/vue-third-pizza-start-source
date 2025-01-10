@@ -5,17 +5,17 @@
 
       <div class="sheet__content dough">
         <label
-          v-for="(item, index) in dough"
+          v-for="(item, index) in pizzaStore.getDough"
           :key="item.id"
           :class="['dough__input', `dough__input--${item.title}`]"
         >
           <input
             type="radio"
             name="dought"
-            :value="choosedDough"
+            :value="item"
             class="visually-hidden"
-            :checked="index === 0"
-            @input="emit('choosedDough', { ...item })"
+            :checked="pizzaStore.getPizzaData.dough?.id === item.id"
+            @input="pizzaStore.updateDough(item)"
           />
           <b>{{ item.name }}</b>
           <span>{{ item.description }}</span>
@@ -26,18 +26,7 @@
 </template>
 
 <script setup>
-defineProps({
-  choosedDough: {
-    type: Object,
-    required: true,
-    default: null,
-  },
-  dough: {
-    type: Array,
-    required: true,
-    default: () => [],
-  },
-});
-const emit = defineEmits(["choosedDough"]);
-</script>
+import { usePizzaStore } from "@/stores/pizza";
 
+const pizzaStore = usePizzaStore();
+</script>

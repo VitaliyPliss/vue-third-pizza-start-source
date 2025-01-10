@@ -5,17 +5,17 @@
 
       <div class="sheet__content diameter">
         <label
-          v-for="(size, index) in sizes"
+          v-for="size in pizzaStore.getSizes"
           :key="size.id"
           :class="['diameter__input', `diameter__input--${size.title}`]"
         >
           <input
             type="radio"
             name="diameter"
-            :value="choosedSize"
+            :value="size"
             class="visually-hidden"
-            :checked="index === 0"
-            @input="emit('choosedSize', size)"
+            :checked="pizzaStore.getPizzaData.size?.id === size.id"
+            @input="pizzaStore.updateSize(size)"
           />
           <span>{{ size.name }}</span>
         </label>
@@ -25,17 +25,7 @@
 </template>
 
 <script setup>
-defineProps({
-  choosedSize: {
-    type: Object,
-    required: true,
-    default: null,
-  },
-  sizes: {
-    type: Array,
-    required: true,
-    default: () => [],
-  },
-});
-const emit = defineEmits(["choosedSize"]);
+import { usePizzaStore } from "@/stores/pizza";
+
+const pizzaStore = usePizzaStore();
 </script>

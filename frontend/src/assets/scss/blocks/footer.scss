@@ -6,6 +6,10 @@
   padding: 25px 2.12%;
 
   background-color: rgba($green-500, 0.1);
+
+  .button {
+    padding: 16px;
+  }
 }
 
 .footer__more {
@@ -15,6 +19,10 @@
   a {
     padding-top: 16px;
     padding-bottom: 16px;
+  }
+
+  .button {
+    padding: 16px;
   }
 }
 

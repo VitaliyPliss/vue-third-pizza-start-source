@@ -4,7 +4,7 @@
       <div
         :class="[
           'pizza',
-          `pizza--foundation--${pizzaData.dough.title}-${pizzaData.sauce.title}`,
+          pizzaData.dough && pizzaData.sauce && `pizza--foundation--${pizzaData.dough.title}-${pizzaData.sauce.title}`,
         ]"
       >
         <div class="pizza__wrapper">
@@ -32,7 +32,12 @@ const props = defineProps({
   pizzaData: {
     type: Object,
     required: true,
-    default: null,
+    default: () => ({
+      dough: null,
+      sauce: null,
+      size: null,
+      ingredients: []
+    }),
   },
 });
 

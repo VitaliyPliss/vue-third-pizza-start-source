@@ -1,32 +1,14 @@
 <template>
   <main class="content">
-    <form action="#" method="post">
+    <form @submit.prevent="addToCart" method="post">
       <div class="content__wrapper">
         <h1 class="title title--big">Конструктор пиццы</h1>
 
-        <dough-selector
-          :dough="dough"
-          @choosed-dough="updateChoosedDough"
-          :choosedDough="pizzaData.dough"
-        />
-
-        <size-selector
-          :sizes="sizes"
-          @choosed-size="updateChoosedSize"
-          :choosedSize="pizzaData.size"
-        />
-
-        <ingredients-selector
-          :ingredients="ingredients"
-          :sauces="sauces"
-          @add-ingredient="addIngredient"
-          :choosed-ingredients="pizzaData.ingredients"
-        >
-          <sauces-selector
-            :sauces="sauces"
-            @choosed-sauce="updateChoosedSauce"
-            :choosedSauce="pizzaData.sauce"
-        /></ingredients-selector>
+        <dough-selector />
+        <size-selector />
+        <ingredients-selector>
+          <sauces-selector />
+        </ingredients-selector>
 
         <div class="content__pizza">
           <label class="input">
@@ -35,17 +17,26 @@
               type="text"
               name="pizza_name"
               placeholder="Введите название пиццы"
+              v-model="pizzaStore.getPizzaData.name"
             />
           </label>
 
           <pizzaConstructor
-            :pizzaData="pizzaData"
-            @drop="addIngredient($event)"
+            :pizzaData="pizzaStore.getPizzaData"
+            @drop="pizzaStore.addIngredient"
           />
 
           <div class="content__result">
-            <p>Итого: 0 ₽</p>
-            <button type="button" class="button" disabled>Готовьте!</button>
+            <p>Итого: {{ calculatePrice }} ₽</p>
+            <div class="footer__submit">
+              <button
+                type="submit"
+                class="button"
+                :disabled="!hasSelectedIngredients"
+              >
+                Готовьте!
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -54,80 +45,70 @@
 </template>
 
 <script setup>
+import { onMounted, computed, ref } from "vue";
+import { useRouter } from "vue-router";
+import { usePizzaStore } from "@/stores/pizza";
+import { useCartStore } from "@/stores/cart";
+
 import doughSelector from "@/modules/constructor/doughSelector.vue";
 import saucesSelector from "@/modules/constructor/saucesSelector.vue";
 import sizeSelector from "@/modules/constructor/sizeSelector.vue";
 import ingredientsSelector from "@/modules/constructor/ingredientsSelector.vue";
 import pizzaConstructor from "@/modules/constructor/pizzaConstructor.vue";
 
-import doughJSON from "@/mocks/dough.json";
-import saucesJSON from "@/mocks/sauces.json";
-import sizesJSON from "@/mocks/sizes.json";
-import ingredientsJSON from "@/mocks/ingredients.json";
+const router = useRouter();
+const pizzaStore = usePizzaStore();
+const cartStore = useCartStore();
 
-import doughConstants from "@/common/data/doughSizes.js";
-import saucesConstants from "@/common/data/sauces.js";
-import sizesConstants from "@/common/data/sizes.js";
-import ingredientsConstants from "@/common/data/ingredients.js";
+const editingPizzaId = ref(null);
 
-import { reactive } from "vue";
-
-const emit = defineEmits(["drop"]);
-
-const normalizePizzaData = (JSON, constants) => {
-  return JSON.map((item) => {
-    return {
-      ...item,
-      title: constants[item.id],
-    };
-  });
-};
-
-const dough = normalizePizzaData(doughJSON, doughConstants);
-const sauces = normalizePizzaData(saucesJSON, saucesConstants);
-const sizes = normalizePizzaData(sizesJSON, sizesConstants);
-const ingredients = normalizePizzaData(ingredientsJSON, ingredientsConstants);
-
-const pizzaData = reactive({
-  dough: dough[0],
-  sauce: sauces[0],
-  size: sizes[0],
-  ingredients: [],
+onMounted(() => {
+  const editPizzaId = router.currentRoute.value.query.editPizza;
+  if (editPizzaId) {
+    const pizzaToEdit = cartStore.getPizzas.find(
+      (p) => p.id === Number(editPizzaId)
+    );
+    if (pizzaToEdit) {
+      editingPizzaId.value = Number(editPizzaId);
+      pizzaStore.loadPizzaForEdit(pizzaToEdit);
+    }
+  } else {
+    pizzaStore.initializePizzaData();
+  }
 });
 
-const updateChoosedDough = (newDough) => {
-  pizzaData.dough = newDough;
-};
+const calculatePrice = computed(() => {
+  const { dough, sauce, size, ingredients } = pizzaStore.getPizzaData;
+  if (!dough || !sauce || !size) return 0;
 
-const updateChoosedSauce = (newSauce) => {
-  pizzaData.sauce = newSauce;
-};
-
-const updateChoosedSize = (newSize) => {
-  pizzaData.size = newSize;
-};
-
-const addIngredient = ({ title, counter }) => {
-  const ingredientExists = pizzaData.ingredients.some(
-    (ingredient) => ingredient.title === title
+  const basePrice = dough.price + sauce.price;
+  const sizeMultiplier = size.multiplier;
+  const ingredientsPrice = ingredients.reduce(
+    (sum, ing) => sum + ing.counter * 50,
+    0
   );
 
-  if (ingredientExists) {
-    const existingIngredientIndex = pizzaData.ingredients.findIndex(
-      (ingredient) => ingredient.title === title
-    );
-    pizzaData.ingredients[existingIngredientIndex].counter = counter;
+  return Math.round((basePrice + ingredientsPrice) * sizeMultiplier);
+});
 
-    if (counter === 0) {
-      pizzaData.ingredients.splice(existingIngredientIndex, 1);
-    }
+const hasSelectedIngredients = computed(() => {
+  return pizzaStore.getPizzaData.ingredients.some(
+    (ingredient) => ingredient.counter > 0
+  );
+});
 
-    return;
+const addToCart = () => {
+  const pizza = {
+    ...pizzaStore.getPizzaData,
+    price: calculatePrice.value,
+  };
+
+  if (editingPizzaId.value) {
+    cartStore.editPizza(editingPizzaId.value, pizza);
+  } else {
+    cartStore.addPizza(pizza);
   }
 
-  pizzaData.ingredients.push({
-    title,
-    counter,
-  });
+  router.push({ name: "cart" });
 };
 </script>

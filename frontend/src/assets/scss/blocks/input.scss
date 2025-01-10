@@ -29,6 +29,14 @@
 
     font-family: inherit;
 
+    &.is-invalid {
+      border-color: #ff0000;
+
+      &:focus {
+        border-color: #ff0000;
+      }
+    }
+
     &:focus {
       border-color: $green-500;
     }
